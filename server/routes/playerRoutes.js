@@ -20,6 +20,9 @@ router.put('/:id', playerController.updatePlayer);
 // Delete player
 router.delete('/:id', playerController.deletePlayer);
 
+router.post('/contracts', playerController.addPlayerContract);
+
+router.post('/player-performances', playerController.addPlayerPerformance);
 
 
 
