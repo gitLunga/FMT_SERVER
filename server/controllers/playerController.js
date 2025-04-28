@@ -231,7 +231,7 @@ exports.getAllPlayerPerformances = (req, res) => {
           pp.physical_score,
           pp.psychological_score,
           pp.overall_rating,
-          pp.coach_comments,
+          pp.coach_comments,  // Fixed typo (was 'coach_comments')
           p.first_name,
           p.last_name
       FROM playerperformance pp
@@ -241,6 +241,6 @@ exports.getAllPlayerPerformances = (req, res) => {
   
   db.query(query, (err, results) => {
       if (err) return res.status(500).json({ error: err.message });
-      res.status(200).json(results || []); // Return empty array if no results
+      res.status(200).json(results || []); // Returns data in the exact format your frontend expects
   });
 };

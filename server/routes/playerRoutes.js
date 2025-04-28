@@ -24,6 +24,7 @@ router.post('/add-contract', playerController.addPlayerContract);
 
 router.post('/add-performance', playerController.addPlayerPerformance);
 
+
 router.get('/contracts', playerController.getAllPlayerContracts);
 router.get('/performances', playerController.getAllPlayerPerformances);
 
