@@ -20,11 +20,12 @@ router.put('/:id', playerController.updatePlayer);
 // Delete player
 router.delete('/:id', playerController.deletePlayer);
 
-router.post('/contracts', playerController.addPlayerContract);
+router.post('/add-contract', playerController.addPlayerContract);
 
-router.post('/player-performances', playerController.addPlayerPerformance);
+router.post('/add-performance', playerController.addPlayerPerformance);
 
-
+router.get('/contracts', playerController.getAllPlayerContracts);
+router.get('/performances', playerController.getAllPlayerPerformances);
 
 
 module.exports = router;

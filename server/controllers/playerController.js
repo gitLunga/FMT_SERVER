@@ -3,12 +3,14 @@ const db = require('../../config/config');
 exports.addPlayer = (req, res) => {
   const player = req.body;
 
+  // Validation
   if (!player.first_name || !player.last_name) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return res.status(400).json({ error: 'First name and last name are required' });
   }
 
-  const query = `INSERT INTO Player 
-    (first_name, last_name, date_of_birth, position, nationality, height, weight, contact_email, contact_phone, academy_join_date, status) 
+  const query = `INSERT INTO player 
+    (first_name, last_name, date_of_birth, position, nationality, 
+     height, weight, contact_email, contact_phone, academy_join_date, status) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   db.query(query, [
@@ -17,14 +19,24 @@ exports.addPlayer = (req, res) => {
     player.date_of_birth,
     player.position,
     player.nationality,
-    player.height,
-    player.weight,
-    player.contact_email,
-    player.contact_phone,
+    player.height || null,  // Handle optional fields
+    player.weight || null,
+    player.contact_email || null,
+    player.contact_phone || null,
     player.academy_join_date,
     player.status
   ], (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ 
+        error: 'Database operation failed',
+        details: err.message 
+      });
+    }
+    
+    // Verify the insertId
+    console.log('Insert result:', result);
+    
     res.status(201).json({ 
       message: 'Player added successfully',
       player_id: result.insertId 
@@ -173,5 +185,62 @@ exports.addPlayerPerformance = (req, res) => {
   ], (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
     res.status(201).json({ message: 'Performance added successfully' });
+  });
+};
+
+exports.getAllPlayerContracts = (req, res) => {
+  const query = `
+    SELECT 
+      pc.contract_id,
+      pc.player_id,
+      pc.start_date,
+      pc.end_date,
+      pc.contract_type,
+      pc.monthly_stipend,
+      pc.performance_bonus,
+      pc.status,
+      p.first_name,
+      p.last_name
+    FROM playercontract pc
+    JOIN player p ON pc.player_id = p.player_id
+    ORDER BY p.last_name ASC
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ error: "Failed to fetch contracts" });
+    }
+
+    if (results.length === 0) {
+      return res.status(200).json([]); // Return empty array instead of error
+    }
+
+    res.status(200).json(results);
+  });
+};
+
+exports.getAllPlayerPerformances = (req, res) => {
+  const query = `
+      SELECT 
+          pp.performance_id,
+          pp.player_id,
+          pp.assessment_date,
+          pp.technical_score,
+          pp.tactical_score,
+          pp.physical_score,
+          pp.psychological_score,
+          pp.overall_rating,
+          pp.coach_comments,
+          p.first_name,
+          p.last_name
+      FROM playerperformance pp
+      JOIN player p ON pp.player_id = p.player_id
+      ORDER BY pp.assessment_date DESC
+  `;
+  
+  db.query(query, (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.status(200).json(results || []); // Return empty array if no results
   });
 };
