@@ -244,3 +244,28 @@ exports.getAllPlayerPerformances = (req, res) => {
       res.status(200).json(results || []); // Returns data in the exact format your frontend expects
   });
 };
+
+exports.getAllScoutingRecords = (req, res) => {
+  const query = `SELECT s.*, 
+                u1.first_name as scout_first_name, u1.last_name as scout_last_name,
+                p.first_name as player_first_name, p.last_name as player_last_name
+                FROM scouting s
+                JOIN user u1 ON s.scout_id = u1.user_id
+                JOIN player p ON s.player_id = p.player_id
+                ORDER BY s.scouted_date DESC`;
+
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(200).json(results);
+  });
+};
+
+// Get all active contracts count (for admin dashboard)
+exports.getActiveContractsCount = (req, res) => {
+  const query = `SELECT COUNT(*) as count FROM playercontract WHERE status = 'active'`;
+
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(200).json({ count: results[0].count });
+  });
+};

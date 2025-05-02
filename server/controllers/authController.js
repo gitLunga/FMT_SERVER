@@ -55,7 +55,8 @@ exports.loginUser = (req, res) => {
                 id: user.user_id,
                 firstName: user.first_name,
                 lastName: user.last_name,
-                email: user.email
+                email: user.email,
+                role: user.role
             }
         });
     });
