@@ -4,8 +4,11 @@ const db = require('../../config/config');
 exports.scoutPlayer = (req, res) => {
     const { scout_id, player_id } = req.body;
   
-    if (!scout_id || !player_id) {
-      return res.status(400).json({ error: 'Scout ID and Player ID are required' });
+    console.log('Received scout request with:', { scout_id, player_id });
+
+    if (!scout_id || isNaN(scout_id)) {  // Make sure this validation works with your ID format
+        console.error('Invalid scout ID received:', scout_id);
+        return res.status(400).json({ error: 'Invalid scout ID' });
     }
   
     // Verify scout role
@@ -319,3 +322,49 @@ exports.getAdminStats = (req, res) => {
     });
   }
 };
+
+// Add these to your scoutController.js
+
+exports.getScoutingData = async (req, res) => {
+    try {
+      // Example - replace with your actual query
+      const [results] = await db.query(`
+        SELECT 
+          DATE_FORMAT(scouted_date, '%Y-%m') as month,
+          COUNT(*) as count
+        FROM scouting
+        GROUP BY month
+        ORDER BY month
+        LIMIT 6
+      `);
+      
+      const data = {
+        months: results.map(r => r.month),
+        counts: results.map(r => r.count)
+      };
+      
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+  
+  exports.getPlayersData = async (req, res) => {
+    try {
+      // Example - replace with your actual query
+      const [results] = await db.query(`
+        SELECT status, COUNT(*) as count
+        FROM player
+        GROUP BY status
+      `);
+      
+      const data = {
+        statuses: results.map(r => r.status),
+        counts: results.map(r => r.count)
+      };
+      
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };

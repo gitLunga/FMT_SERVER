@@ -23,4 +23,8 @@ router.put('/notifications/read/:notification_id', scoutController.markNotificat
 // Get admin stats
 router.get('/admin/stats', scoutController.getAdminStats);
 
+
+router.get('/scouting-data', scoutController.getScoutingData);
+router.get('player-data', scoutController.getPlayersData);
+
 module.exports = router;
