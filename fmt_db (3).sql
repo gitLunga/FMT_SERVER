@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 02, 2025 at 01:31 PM
+-- Generation Time: May 02, 2025 at 03:36 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,24 @@ SET time_zone = "+00:00";
 --
 -- Database: `fmt_db`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `notification_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `sender_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `related_id` int(11) DEFAULT NULL,
+  `is_read` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -108,7 +126,22 @@ INSERT INTO `playerperformance` (`performance_id`, `player_id`, `assessment_date
 (1, 92, '2025-04-28', 10.00, 10.00, 10.00, 10.00, 10.00, 'Perfection'),
 (2, 7, '2025-04-28', 5.00, 5.00, 5.00, 5.00, 5.00, 'Lot of room for improvement'),
 (3, 92, '2025-04-28', 10.00, 10.00, 10.00, 10.00, 10.00, 'Exceptional'),
-(4, 90, '2025-04-28', 10.00, 10.00, 10.00, 10.00, 10.00, 'Starrr');
+(4, 90, '2025-04-28', 10.00, 10.00, 10.00, 10.00, 10.00, 'Starrr'),
+(5, 91, '2025-05-02', 10.00, 10.00, 10.00, 10.00, 10.00, 'Excellent');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `scouting`
+--
+
+CREATE TABLE `scouting` (
+  `scouting_id` int(11) NOT NULL,
+  `scout_id` int(11) NOT NULL,
+  `player_id` int(11) NOT NULL,
+  `scouted_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` enum('pending','approved','rejected') DEFAULT 'pending'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -162,12 +195,21 @@ CREATE TABLE `user` (
 
 INSERT INTO `user` (`user_id`, `first_name`, `last_name`, `email`, `password`, `role`, `created_at`) VALUES
 (1, 'Peter', 'Magudulela', 'peter@admin.com', 'Peter#123', 'admin', '2025-04-28 11:56:11'),
-(2, 'Patrice', 'Motsepe', 'motsepe@foundation.com', 'Motsepe#123', 'admin', '2025-04-28 12:02:36'),
-(3, 'Bongani', 'Mongwe', 'mongwe@admin.com', 'Bongzz123', 'admin', '2025-04-28 14:37:19');
+(2, 'Patrice', 'Motsepe', 'motsepe@foundation.com', 'Motsepe#123', 'scout', '2025-04-28 12:02:36'),
+(3, 'Bongani', 'Mongwe', 'mongwe@admin.com', 'Bongzz123', 'player', '2025-04-28 14:37:19'),
+(4, 'Juan ', 'Laporta', 'barcelonafc@gmail.com', 'Barca#123', 'scout', '2025-05-02 12:55:37');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`notification_id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `sender_id` (`sender_id`);
 
 --
 -- Indexes for table `player`
@@ -187,6 +229,14 @@ ALTER TABLE `playercontract`
 --
 ALTER TABLE `playerperformance`
   ADD PRIMARY KEY (`performance_id`),
+  ADD KEY `player_id` (`player_id`);
+
+--
+-- Indexes for table `scouting`
+--
+ALTER TABLE `scouting`
+  ADD PRIMARY KEY (`scouting_id`),
+  ADD UNIQUE KEY `unique_scouting` (`scout_id`,`player_id`),
   ADD KEY `player_id` (`player_id`);
 
 --
@@ -215,6 +265,12 @@ ALTER TABLE `user`
 --
 
 --
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `player`
 --
 ALTER TABLE `player`
@@ -230,7 +286,13 @@ ALTER TABLE `playercontract`
 -- AUTO_INCREMENT for table `playerperformance`
 --
 ALTER TABLE `playerperformance`
-  MODIFY `performance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `performance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `scouting`
+--
+ALTER TABLE `scouting`
+  MODIFY `scouting_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `trainingattendance`
@@ -248,11 +310,18 @@ ALTER TABLE `trainingsession`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`),
+  ADD CONSTRAINT `notifications_ibfk_2` FOREIGN KEY (`sender_id`) REFERENCES `user` (`user_id`);
 
 --
 -- Constraints for table `playercontract`
@@ -265,6 +334,13 @@ ALTER TABLE `playercontract`
 --
 ALTER TABLE `playerperformance`
   ADD CONSTRAINT `playerperformance_ibfk_1` FOREIGN KEY (`player_id`) REFERENCES `player` (`player_id`);
+
+--
+-- Constraints for table `scouting`
+--
+ALTER TABLE `scouting`
+  ADD CONSTRAINT `scouting_ibfk_1` FOREIGN KEY (`scout_id`) REFERENCES `user` (`user_id`),
+  ADD CONSTRAINT `scouting_ibfk_2` FOREIGN KEY (`player_id`) REFERENCES `player` (`player_id`);
 
 --
 -- Constraints for table `trainingattendance`

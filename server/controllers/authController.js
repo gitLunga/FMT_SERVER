@@ -8,7 +8,7 @@ exports.registerUser = (req, res) => {
         return res.status(400).json({ error: 'All fields are required' });
     }
 
-    db.query('SELECT * FROM user WHERE email = ?', [email], (err, results) => {
+    db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         
         if (results.length > 0) {
@@ -16,7 +16,7 @@ exports.registerUser = (req, res) => {
         }
 
         db.query(
-            'INSERT INTO user (first_name, last_name, email, password) VALUES (?, ?, ?, ?)',
+            'INSERT INTO users (first_name, last_name, email, password) VALUES (?, ?, ?, ?)',
             [firstName, lastName, email, password],
             (err, result) => {
                 if (err) return res.status(500).json({ error: err.message });
@@ -36,7 +36,7 @@ exports.loginUser = (req, res) => {
         return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    db.query('SELECT * FROM user WHERE email = ?', [email], (err, results) => {
+    db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         
         if (results.length === 0) {
