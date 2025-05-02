@@ -25,8 +25,11 @@ router.post('/add-contract', playerController.addPlayerContract);
 router.post('/add-performance', playerController.addPlayerPerformance);
 
 
-router.get('/contracts', playerController.getAllPlayerContracts);
-router.get('/performances', playerController.getAllPlayerPerformances);
+router.get('/get-allcontracts', playerController.getAllPlayerContracts);
+router.get('/get-allperformances', playerController.getAllPlayerPerformances);
 
+
+router.get('/scouting/all', playerController.getAllScoutingRecords);
+router.get('/contracts/active-count', playerController.getActiveContractsCount);
 
 module.exports = router;
