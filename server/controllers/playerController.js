@@ -136,6 +136,7 @@ exports.getPlayer = (req, res) => {
   });
 };
 
+//contract APIS
 exports.addPlayerContract = (req, res) => {
   const contract = req.body;
 
@@ -160,6 +161,101 @@ exports.addPlayerContract = (req, res) => {
     res.status(201).json({ message: 'Contract added successfully' });
   });
 };
+// Get contract count
+exports.getContractCount = (req, res) => {
+  const query = `SELECT COUNT(*) as count FROM playercontract`;
+  
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(200).json({ count: results[0].count });
+  });
+};
+
+// Update contract
+exports.updateContract = (req, res) => {
+  const { id } = req.params;
+  const contract = req.body;
+  
+  if (!contract.player_id || !contract.contract_type || !contract.start_date) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  
+  const query = `UPDATE playercontract SET 
+    player_id = ?,
+    start_date = ?,
+    end_date = ?,
+    contract_type = ?,
+    monthly_stipend = ?,
+    performance_bonus = ?,
+    status = ?
+    WHERE contract_id = ?`;
+  
+  db.query(query, [
+    contract.player_id,
+    contract.start_date,
+    contract.end_date,
+    contract.contract_type,
+    contract.monthly_stipend,
+    contract.performance_bonus,
+    contract.status,
+    id
+  ], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Contract not found' });
+    }
+    res.status(200).json({ message: 'Contract updated successfully' });
+  });
+};
+
+// Delete contract
+exports.deleteContract = (req, res) => {
+  const { id } = req.params;
+  const query = `DELETE FROM playercontract WHERE contract_id = ?`;
+  
+  db.query(query, [id], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Contract not found' });
+    }
+    res.status(200).json({ message: 'Contract deleted successfully' });
+  });
+};
+
+// Get single contract
+exports.getContract = (req, res) => {
+  const { id } = req.params;
+  const query = `
+    SELECT 
+      pc.*,
+      p.first_name,
+      p.last_name
+    FROM playercontract pc
+    JOIN player p ON pc.player_id = p.player_id
+    WHERE pc.contract_id = ?`;
+  
+  db.query(query, [id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Contract not found' });
+    }
+    res.status(200).json(results[0]);
+  });
+};
+
+exports.getAllContracts = (req, res) => {
+  const query = `SELECT * FROM playercontract ORDER BY contract_id`;
+  
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ error: "Failed to fetch contracts" });
+    }
+    res.status(200).json(results);
+  });
+};
+
+//performance APIS
 
 exports.addPlayerPerformance = (req, res) => {
   const performance = req.body;
@@ -188,37 +284,91 @@ exports.addPlayerPerformance = (req, res) => {
   });
 };
 
-exports.getAllPlayerContracts = (req, res) => {
-  const query = `
-    SELECT 
-      pc.contract_id,
-      pc.player_id,
-      pc.start_date,
-      pc.end_date,
-      pc.contract_type,
-      pc.monthly_stipend,
-      pc.performance_bonus,
-      pc.status,
-      p.first_name,
-      p.last_name
-    FROM playercontract pc
-    JOIN player p ON pc.player_id = p.player_id
-    ORDER BY p.last_name ASC
-  `;
-
+// Get performance count
+exports.getPerformanceCount = (req, res) => {
+  const query = `SELECT COUNT(*) as count FROM playerperformance`;
+  
   db.query(query, (err, results) => {
-    if (err) {
-      console.error("Database error:", err);
-      return res.status(500).json({ error: "Failed to fetch contracts" });
-    }
-
-    if (results.length === 0) {
-      return res.status(200).json([]); // Return empty array instead of error
-    }
-
-    res.status(200).json(results);
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(200).json({ count: results[0].count });
   });
 };
+
+// Update performance
+exports.updatePerformance = (req, res) => {
+  const { id } = req.params;
+  const performance = req.body;
+  
+  if (!performance.player_id || !performance.assessment_date) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  
+  const query = `UPDATE playerperformance SET 
+    player_id = ?,
+    assessment_date = ?,
+    technical_score = ?,
+    tactical_score = ?,
+    physical_score = ?,
+    psychological_score = ?,
+    overall_rating = ?,
+    coach_comments = ?
+    WHERE performance_id = ?`;
+  
+  db.query(query, [
+    performance.player_id,
+    performance.assessment_date,
+    performance.technical_score,
+    performance.tactical_score,
+    performance.physical_score,
+    performance.psychological_score,
+    performance.overall_rating,
+    performance.coach_comments,
+    id
+  ], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Performance record not found' });
+    }
+    res.status(200).json({ message: 'Performance record updated successfully' });
+  });
+};
+
+// Delete performance
+exports.deletePerformance = (req, res) => {
+  const { id } = req.params;
+  const query = `DELETE FROM playerperformance WHERE performance_id = ?`;
+  
+  db.query(query, [id], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Performance record not found' });
+    }
+    res.status(200).json({ message: 'Performance record deleted successfully' });
+  });
+};
+
+// Get single performance
+exports.getPerformance = (req, res) => {
+  const { id } = req.params;
+  const query = `
+    SELECT 
+      pp.*,
+      p.first_name,
+      p.last_name
+    FROM playerperformance pp
+    JOIN player p ON pp.player_id = p.player_id
+    WHERE pp.performance_id = ?`;
+  
+  db.query(query, [id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Performance record not found' });
+    }
+    res.status(200).json(results[0]);
+  });
+};
+
+
 
 exports.getAllPlayerPerformances = (req, res) => {
   const query = `

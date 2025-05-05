@@ -20,13 +20,32 @@ router.put('/:id', playerController.updatePlayer);
 // Delete player
 router.delete('/:id', playerController.deletePlayer);
 
+
+// Add this to your routes file as a test
+router.get('/test-route', (req, res) => {
+    res.json({ message: "Route is working!" });
+  });
+
+//contracts routes
 router.post('/add-contract', playerController.addPlayerContract);
 
+router.get('/get-allcontracts', playerController.getAllContracts);
+
+router.get('/contracts/count', playerController.getContractCount);
+
+router.put('/contracts/:id', playerController.updateContract);
+
+router.delete('/contracts/:id', playerController.deleteContract);
+
+router.get('/contracts/:id', playerController.getContract);
+
+//performances routes
 router.post('/add-performance', playerController.addPlayerPerformance);
-
-
-router.get('/get-allcontracts', playerController.getAllPlayerContracts);
 router.get('/get-allperformances', playerController.getAllPlayerPerformances);
+router.get('/performances/count', playerController.getPerformanceCount);
+router.put('/performances/:id', playerController.updatePerformance);
+router.delete('/performances/:id', playerController.deletePerformance);
+router.get('/performances/:id', playerController.getPerformance);
 
 
 router.get('/scouting/all', playerController.getAllScoutingRecords);
