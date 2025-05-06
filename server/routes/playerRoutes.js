@@ -12,7 +12,6 @@ router.get('/', playerController.getAllPlayers);
 router.get('/count', playerController.getPlayerCount);
 
 // Get single player
-router.get('/:id', playerController.getPlayer);
 
 // Update player
 router.put('/:id', playerController.updatePlayer);
@@ -29,7 +28,7 @@ router.get('/test-route', (req, res) => {
 //contracts routes
 router.post('/add-contract', playerController.addPlayerContract);
 
-router.get('/get-allcontracts', playerController.getAllContracts);
+router.get('/contracts', playerController.getContracts);
 
 router.get('/contracts/count', playerController.getContractCount);
 
@@ -41,7 +40,7 @@ router.get('/contracts/:id', playerController.getContract);
 
 //performances routes
 router.post('/add-performance', playerController.addPlayerPerformance);
-router.get('/get-allperformances', playerController.getAllPlayerPerformances);
+router.get('/performances', playerController.getPerformances);
 router.get('/performances/count', playerController.getPerformanceCount);
 router.put('/performances/:id', playerController.updatePerformance);
 router.delete('/performances/:id', playerController.deletePerformance);
@@ -50,5 +49,9 @@ router.get('/performances/:id', playerController.getPerformance);
 
 router.get('/scouting/all', playerController.getAllScoutingRecords);
 router.get('/contracts/active-count', playerController.getActiveContractsCount);
+
+//moved get single player 
+router.get('/:id', playerController.getPlayer);
+
 
 module.exports = router;

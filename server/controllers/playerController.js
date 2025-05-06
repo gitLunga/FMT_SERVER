@@ -243,9 +243,14 @@ exports.getContract = (req, res) => {
   });
 };
 
-exports.getAllContracts = (req, res) => {
-  const query = `SELECT * FROM playercontract ORDER BY contract_id`;
-  
+exports.getContracts = (req, res) => {
+  const query = `
+    SELECT pc.*, p.first_name, p.last_name, p.nationality
+    FROM playercontract pc
+    JOIN player p ON pc.player_id = p.player_id
+    ORDER BY pc.contract_id;
+  `;
+
   db.query(query, (err, results) => {
     if (err) {
       console.error("Database error:", err);
@@ -254,6 +259,7 @@ exports.getAllContracts = (req, res) => {
     res.status(200).json(results);
   });
 };
+
 
 //performance APIS
 
@@ -370,28 +376,20 @@ exports.getPerformance = (req, res) => {
 
 
 
-exports.getAllPlayerPerformances = (req, res) => {
+exports.getPerformances = (req, res) => {
   const query = `
-      SELECT 
-          pp.performance_id,
-          pp.player_id,
-          pp.assessment_date,
-          pp.technical_score,
-          pp.tactical_score,
-          pp.physical_score,
-          pp.psychological_score,
-          pp.overall_rating,
-          pp.coach_comments,  // Fixed typo (was 'coach_comments')
-          p.first_name,
-          p.last_name
-      FROM playerperformance pp
-      JOIN player p ON pp.player_id = p.player_id
-      ORDER BY pp.assessment_date DESC
+    SELECT pp.*, p.first_name, p.last_name, p.position, p.nationality
+    FROM playerperformance pp
+    JOIN player p ON pp.player_id = p.player_id
+    ORDER BY pp.performance_id DESC;
   `;
-  
+
   db.query(query, (err, results) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.status(200).json(results || []); // Returns data in the exact format your frontend expects
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ error: "Failed to fetch player performances" });
+    }
+    res.status(200).json(results);
   });
 };
 
