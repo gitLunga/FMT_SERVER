@@ -1,8 +1,7 @@
-
 const db = require('../../config/config');
 
 exports.registerUser = (req, res) => {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, role = 'player' } = req.body; // Default role is 'player'
 
     if (!firstName || !lastName || !email || !password) {
         return res.status(400).json({ error: 'All fields are required' });
@@ -16,19 +15,21 @@ exports.registerUser = (req, res) => {
         }
 
         db.query(
-            'INSERT INTO user (first_name, last_name, email, password) VALUES (?, ?, ?, ?)',
-            [firstName, lastName, email, password],
+            'INSERT INTO user (first_name, last_name, email, password, role) VALUES (?, ?, ?, ?, ?)',
+            [firstName, lastName, email, password, role],
             (err, result) => {
                 if (err) return res.status(500).json({ error: err.message });
                 res.status(201).json({ 
                     message: 'User registered successfully',
-                    userId: result.insertId
+                    userId: result.insertId,
+                    role: role // Include role in response
                 });
             }
         );
     });
 };
 
+// loginUser remains exactly the same
 exports.loginUser = (req, res) => {
     const { email, password } = req.body;
 
